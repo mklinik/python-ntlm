@@ -12,7 +12,6 @@
 # License along with this library.  If not, see <http://www.gnu.org/licenses/> or <http://www.gnu.org/licenses/lgpl.txt>.
 
 import struct
-import base64
 import string
 import des
 import hashlib
@@ -208,13 +207,10 @@ def create_NTLM_NEGOTIATE_MESSAGE(user):
             VersionReserved1 + VersionReserved2 + VersionReserved3 + NTLMRevisionCurrent
     assert BODY_LENGTH==len(msg1), "BODY_LENGTH: %d != msg1: %d" % (BODY_LENGTH,len(msg1))
     msg1 += Workstation + DomainName
-    msg1 = base64.encodestring(msg1)
-    msg1 = string.replace(msg1, '\n', '')
     return msg1
     
 def parse_NTLM_CHALLENGE_MESSAGE(msg2):
     ""
-    msg2 = base64.decodestring(msg2)
     Signature = msg2[0:8]
     msg_type = struct.unpack("<I",msg2[8:12])[0]
     assert(msg_type==2)
@@ -326,8 +322,6 @@ def create_NTLM_AUTHENTICATE_MESSAGE(nonce, user, domain, password, NegotiateFla
     assert BODY_LENGTH==len(msg3), "BODY_LENGTH: %d != msg3: %d" % (BODY_LENGTH,len(msg3))
     Payload = DomainName + UserName + Workstation + LmChallengeResponse + NtChallengeResponse + EncryptedRandomSessionKey
     msg3 += Payload
-    msg3 = base64.encodestring(msg3)
-    msg3 = string.replace(msg3, '\n', '')
     return msg3
             
 def calc_resp(password_hash, server_challenge):
